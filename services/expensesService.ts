@@ -14,18 +14,22 @@ class ExpensesService {
     return expensesRepository.getFilteredExpenses(userId, date, filter);
   }
 
-  deleteExpense(id: number) {
-    return expensesRepository.deleteExpense(id);
+  deleteExpense(userId: string, id: number) {
+    return expensesRepository.deleteExpense(userId, id);
   }
 
   addExpense(expense: ExpenseType, userId: string) {
     return expensesRepository.addExpense(expense, userId);
   }
 
-  editExpense(id: number, partialExpense: Partial<ExpenseType>) {
-    const expense = expensesRepository.getExpenseById(id);
+  editExpense(
+    userId: string,
+    id: number,
+    partialExpense: Partial<ExpenseType>
+  ) {
+    const expense = expensesRepository.getExpenseById(userId, id);
     const updatedExpense = { ...expense, ...partialExpense };
-    return expensesRepository.editExpense(updatedExpense);
+    return expensesRepository.editExpense(userId, updatedExpense);
   }
 }
 

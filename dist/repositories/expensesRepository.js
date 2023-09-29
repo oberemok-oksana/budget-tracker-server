@@ -29,20 +29,29 @@ class ExpensesRepository {
         const data = db.prepare(sql);
         return data.all({ userId: userId, date: date, category: filter });
     }
-    deleteExpense(id) {
-        const data = db.prepare("DELETE FROM expenses WHERE id=?");
-        data.run(id);
+    deleteExpense(userId, id) {
+        const data = db.prepare("DELETE FROM expenses WHERE user_id=@userId AND id=@id");
+        data.run({ userId, id });
     }
     addExpense(expense, userId) {
         const { category, sub_category, date, payment, currency, amount, comment } = expense;
         const data = db.prepare("INSERT INTO expenses (user_id,category,sub_category,date,payment,currency,amount,comment) VALUES (?,?,?,?,?,?,?,?)");
         data.run(userId, category, sub_category, date, payment, currency, amount, comment);
     }
-    editExpense(expense) {
+    editExpense(userId, expense) {
         const { category, sub_category, date, payment, currency, amount, comment, id, } = expense;
-        console.log(expense);
-        const data = db.prepare(`UPDATE expenses SET  category=?, sub_category=?, date=?,payment=?,currency=?,amount=?,comment=? WHERE id=?`);
-        data.run(category, sub_category, date, payment, currency, amount, comment, id);
+        const data = db.prepare(`UPDATE expenses SET  category=@category, sub_category=@sub_category, date=@date,payment=@payment,currency=@currency,amount=@amount,comment=@comment WHERE user_id=@userId AND id=@id`);
+        data.run({
+            userId,
+            category,
+            sub_category,
+            date,
+            payment,
+            currency,
+            amount,
+            comment,
+            id,
+        });
     }
 }
 const expensesRepository = new ExpensesRepository();

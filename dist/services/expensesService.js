@@ -9,16 +9,16 @@ class ExpensesService {
     getFilteredExpenses(userId, date, filter) {
         return expensesRepository.getFilteredExpenses(userId, date, filter);
     }
-    deleteExpense(id) {
-        return expensesRepository.deleteExpense(id);
+    deleteExpense(userId, id) {
+        return expensesRepository.deleteExpense(userId, id);
     }
     addExpense(expense, userId) {
         return expensesRepository.addExpense(expense, userId);
     }
-    editExpense(id, partialExpense) {
-        const expense = expensesRepository.getExpenseById(id);
+    editExpense(userId, id, partialExpense) {
+        const expense = expensesRepository.getExpenseById(userId, id);
         const updatedExpense = Object.assign(Object.assign({}, expense), partialExpense);
-        return expensesRepository.editExpense(updatedExpense);
+        return expensesRepository.editExpense(userId, updatedExpense);
     }
 }
 const expensesService = new ExpensesService();

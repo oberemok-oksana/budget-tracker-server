@@ -7,7 +7,7 @@ import { getUserSession } from "./lib/lib.js";
 
 const router = express.Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/expenses", async (req: Request, res: Response) => {
   const { date, filter } = req.query;
   const session = await getUserSession(req, res);
   res.json(
@@ -43,13 +43,18 @@ router.delete("/logout", async (req, res) => {
   return res.sendStatus(200);
 });
 
-router.delete("/:id", (req: Request, res: Response) => {
+router.delete("/expenses/:id", async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  expensesService.deleteExpense(id);
-  res.sendStatus(200);
+  const session = await getUserSession(req, res);
+  if (session) {
+    expensesService.deleteExpense(session.user.userId, id);
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(403);
+  }
 });
 
-router.post("/", async (req: Request, res: Response) => {
+router.post("/expenses", async (req: Request, res: Response) => {
   const session = await getUserSession(req, res);
 
   if (session) {
@@ -81,8 +86,8 @@ router.post("/signup", async (req, res) => {
   try {
     const user = await auth.createUser({
       key: {
-        providerId: "username", // auth method
-        providerUserId: username.toLowerCase(), // unique id when using "username" auth method
+        providerId: "username",
+        providerUserId: username.toLowerCase(),
         password,
       },
       attributes: {
@@ -106,8 +111,14 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.patch("/:id", (req: Request, res: Response) => {
-  expensesService.editExpense(parseInt(req.params.id), req.body);
+router.patch("/expenses/:id", async (req: Request, res: Response) => {
+  const session = await getUserSession(req, res);
+  expensesService.editExpense(
+    session.user.userId,
+    parseInt(req.params.id),
+    req.body
+  );
+
   res.sendStatus(200);
 });
 

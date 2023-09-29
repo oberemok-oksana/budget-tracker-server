@@ -14,7 +14,7 @@ import { SqliteError } from "better-sqlite3";
 import { LuciaError } from "lucia";
 import { getUserSession } from "./lib/lib.js";
 const router = express.Router();
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/expenses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { date, filter } = req.query;
     const session = yield getUserSession(req, res);
     res.json(expensesService.getFilteredExpenses(session.user.userId, date, filter));
@@ -39,12 +39,18 @@ router.delete("/logout", (req, res) => __awaiter(void 0, void 0, void 0, functio
     // redirect back to login page
     return res.sendStatus(200);
 }));
-router.delete("/:id", (req, res) => {
+router.delete("/expenses/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = parseInt(req.params.id);
-    expensesService.deleteExpense(id);
-    res.sendStatus(200);
-});
-router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield getUserSession(req, res);
+    if (session) {
+        expensesService.deleteExpense(session.user.userId, id);
+        res.sendStatus(200);
+    }
+    else {
+        res.sendStatus(403);
+    }
+}));
+router.post("/expenses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield getUserSession(req, res);
     if (session) {
         const userId = session.user.userId;
@@ -94,10 +100,11 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         // return res.status(500).send("An unknown error occurred");
     }
 }));
-router.patch("/:id", (req, res) => {
-    expensesService.editExpense(parseInt(req.params.id), req.body);
+router.patch("/expenses/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield getUserSession(req, res);
+    expensesService.editExpense(session.user.userId, parseInt(req.params.id), req.body);
     res.sendStatus(200);
-});
+}));
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password } = req.body;
     if (typeof username !== "string" ||
