@@ -7,3 +7,18 @@ export const getUserSession = async (req: Request, res: Response) => {
 
   return session;
 };
+
+export const createNewUser = async () => {
+  const user = await auth.createUser({
+    key: {
+      providerId: "username", // auth method
+      providerUserId: "obama".toLowerCase(), // unique id when using "username" auth method
+      password: "123456", // hashed by Lucia
+    },
+    attributes: {
+      username: "obama",
+    },
+  });
+
+  return user;
+};
